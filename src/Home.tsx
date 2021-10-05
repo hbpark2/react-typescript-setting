@@ -1,5 +1,7 @@
 import { SetStateAction, useContext, useEffect, useState } from "react";
 import styled from "styled-components";
+import { isTemplateTail } from "typescript";
+import ListItem from "./Components/ListItem";
 import Modal from "./Components/Modal";
 import ModalInner from "./Components/ModalInner";
 import { CurrentContext } from "./Context/ContextStore";
@@ -18,24 +20,27 @@ const UnorderList = styled.ul`
   min-width: 300px;
 `;
 
-const ListItem = styled.li`
-  padding: 10px 20px;
-  background-color: rgba(255, 255, 255, 0.5);
-  border: 1px solid #fff;
-  span {
-    display: block;
-  }
-  ul {
-    margin: 10px 0;
-  }
-`;
+// const ListItem = styled.li`
+//   margin: 30px auto;
+//   padding: 10px 20px;
+//   background-color: rgba(255, 255, 255, 0.5);
+//   border: 1px solid #fff;
+//   border-radius: 15px;
+//   box-shadow: ${(props) => props.theme.shadow_2};
+//   span {
+//     display: block;
+//   }
+//   ul {
+//     margin: 10px 0;
+//   }
+// `;
 
-const ListTitle = styled.span`
-  text-align: center;
-  font-weight: 600;
-`;
+// const ListTitle = styled.span`
+//   text-align: center;
+//   font-weight: 600;
+// `;
 
-type ListData = {
+export type ListData = {
   listType: string;
   value1Data: string;
   value2Data: string;
@@ -45,7 +50,10 @@ const Home = () => {
   const { modal } = useContext(CurrentContext);
   const [value1Data, setValue1Data] = useState<string>("");
   const [value2Data, setValue2Data] = useState<string>("");
-  const listData: Array<ListData> = [];
+  const [listData, setListData] = useState(
+    localStorage.getItem("data1" || "") &&
+      JSON.parse(localStorage.getItem("data1" || "") || "")
+  );
 
   const onChangeInputData = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -63,10 +71,20 @@ const Home = () => {
     }
   };
 
-  //TODO: listItem 업데이트
   const listItem =
     localStorage.getItem("data1" || "") &&
     JSON.parse(localStorage.getItem("data1" || "") || "");
+
+  const onDeleteBtnClick = (idx: number) => {
+    listItem.splice(idx, 1);
+    localStorage.setItem("data1", JSON.stringify(listItem));
+    setListData(listItem);
+  };
+
+  useEffect(() => {
+    setListData(listItem);
+    return () => setListData(listItem);
+  }, [modal]);
 
   return (
     <Container>
@@ -83,34 +101,16 @@ const Home = () => {
       )}
       <ListWrap>
         <UnorderList>
-          {listItem?.map((item: ListData, index: number) => {
-            console.log(item);
+          {listData?.map((item: ListData, index: number) => {
             return (
-              <ListItem key={index}>
-                <ListTitle>{item.listType}</ListTitle>
-                <ul>
-                  <li>Title</li>
-                  <li>{item.value1Data}</li>
-                </ul>
-                <ul>
-                  <li>
-                    {((item.listType === "IMAGE" ||
-                      item.listType === "VIDEO") &&
-                      "Url") ||
-                      ((item.listType === "NOTE" || item.listType === "TODO") &&
-                        "Body")}
-                  </li>
-                  {(item.listType === "IMAGE" && (
-                    <img src={item.value2Data} alt="" />
-                  )) ||
-                    (item.listType === "VIDEO" && (
-                      <iframe src={item.value2Data} />
-                    )) ||
-                    ((item.listType === "NOTE" || item.listType === "TODO") && (
-                      <span>{item.value2Data}</span>
-                    ))}
-                </ul>
-              </ListItem>
+              <ListItem
+                key={index}
+                idx={index}
+                onDeleteBtnClick={onDeleteBtnClick}
+                listType={item.listType}
+                value1Data={item.value1Data}
+                value2Data={item.value2Data}
+              />
             );
           })}
         </UnorderList>
