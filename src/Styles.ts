@@ -1,24 +1,42 @@
 import { createGlobalStyle } from "styled-components";
-import { normalize } from "styled-normalize";
 import { DefaultTheme } from "styled-components";
+import reset from "styled-reset";
+import BGIMAGE from "./assets/bg-image.jpeg";
 
 export const defaultTheme: DefaultTheme = {
-  basicWidth: "320px",
-
-  color: {
-    main: "#1c1f25",
-    sub: "#fff",
-  },
+  black: "#333",
+  shadow_1: "3px 3px 4px rgba(0,0,0,0.2)",
+  shadow_2: " 3px 3px 4px rgba(0, 0, 0, 0.2), -3px -3px 4px rgba(0, 0, 0, 0.2)",
+  layout_bgcolor: "rgba(0,0,0, 0.4)",
 };
 
 export const GlobalStyle = createGlobalStyle`
-  ${normalize}
+  ${reset};
+
+  input, button{
+    all: unset;
+  }
+
+  li{
+    list-style: none;
+  }
 
   html,
   body {
-    overflow: hidden;
+    width: 100%;
+    height:100%;
   }
 
+  #wrapper{
+    min-height:100vh;
+    background: url("${BGIMAGE}") no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    background-position:center;
+  }
+  main{
+    padding-top:180px;
+  }
   * {
     box-sizing: border-box;
   }
